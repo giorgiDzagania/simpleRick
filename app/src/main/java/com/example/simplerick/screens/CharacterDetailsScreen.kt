@@ -40,7 +40,8 @@ import kotlinx.coroutines.delay
 fun CharacterDetailsScreen(
     modifier: Modifier = Modifier,
     ktorClient: KtorClient,
-    characterId: Int
+    characterId: Int,
+    onEpisodeClicked: (Int) -> Unit
 ) {
     var character by remember { mutableStateOf<Character?>(null) }
 
@@ -63,7 +64,14 @@ fun CharacterDetailsScreen(
 
     LaunchedEffect(key1 = Unit, block = {
         delay(500)
-        character = ktorClient.getCharacter(characterId)
+//        character = ktorClient.getCharacter(characterId)
+        ktorClient.getCharacter(id = characterId)
+            .onSuccess {
+                character = it
+            }
+            .onFailure { exception ->
+
+            }
     })
 
     LazyColumn(
@@ -79,7 +87,7 @@ fun CharacterDetailsScreen(
         item {
             CharacterDetailsNamePlateComponent(
                 name = character!!.name.toString(),
-                status =  character!!.status ?: CharacterStatus.Unknown
+                status = character!!.status ?: CharacterStatus.Unknown
             )
         }
 
@@ -125,7 +133,7 @@ fun CharacterDetailsScreen(
                     )
                     .clip(RoundedCornerShape(12.dp))
                     .clickable {
-                        // todo handle showing episodes
+                        onEpisodeClicked.invoke(characterId)
                     }
                     .padding(vertical = 8.dp)
                     .fillMaxWidth()
